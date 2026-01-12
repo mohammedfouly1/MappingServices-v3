@@ -312,34 +312,72 @@ def main():
         st.session_state.selected_prompt_type = None
     if 'uploaded_file_content' not in st.session_state:
         st.session_state.uploaded_file_content = None
+    if 'estimated_input_tokens' not in st.session_state:
+        st.session_state.estimated_input_tokens = 0
     
     # Sidebar Configuration
     with st.sidebar:
         st.header("⚙️ Configuration")
-        
-        # API Key input
-        api_key = st.text_input(
-            "OpenAI API Key",
-            type="password",
-            value=Config.api_key,
-            help="Enter your OpenAI API key"
+
+        # Provider Selection
+        st.subheader("🌐 API Provider")
+        provider = st.selectbox(
+            "Select Provider",
+            Config.PROVIDERS,
+            index=Config.PROVIDERS.index(Config.provider) if Config.provider in Config.PROVIDERS else 0,
+            help="Choose between OpenAI or OpenRouter"
         )
-        if api_key:
-            Config.api_key = api_key
-        
+        Config.provider = provider
+
+        # API Key inputs based on provider
+        if provider == "OpenAI":
+            api_key = st.text_input(
+                "OpenAI API Key",
+                type="password",
+                value=Config.api_key,
+                help="Enter your OpenAI API key"
+            )
+            if api_key:
+                Config.api_key = api_key
+        else:  # OpenRouter
+            openrouter_key = st.text_input(
+                "OpenRouter API Key",
+                type="password",
+                value=Config.openrouter_api_key,
+                help="Enter your OpenRouter API key (from openrouter.ai)"
+            )
+            if openrouter_key:
+                Config.openrouter_api_key = openrouter_key
+
         st.divider()
-        
+
         # Model Settings
         st.subheader("🤖 Model Settings")
-        
+
+        # Get models for selected provider
+        available_models = Config.get_models_for_provider(provider)
+        model_names = list(available_models.keys())
+
+        # Find current model index or default to first
+        try:
+            current_model_index = model_names.index(Config.model)
+        except ValueError:
+            current_model_index = 0
+
         model = st.selectbox(
             "Model",
-            ["gpt-4o-mini", "gpt-4o", "gpt-4", "gpt-3.5-turbo"],
-            index=0,
-            help="Select the OpenAI model to use"
+            model_names,
+            index=current_model_index,
+            format_func=lambda x: f"{x} ({available_models[x]['description']})",
+            help="Select the AI model to use"
         )
         Config.model = model
-        
+
+        # Display model context info
+        model_info = available_models.get(model, {})
+        max_context = model_info.get("max_context", 8192)
+        st.caption(f"Max context: {max_context:,} tokens")
+
         temperature = st.slider(
             "Temperature",
             min_value=0.0,
@@ -349,7 +387,7 @@ def main():
             help="Controls randomness (0=focused, 1=creative)"
         )
         Config.temperature = temperature
-        
+
         top_p = st.slider(
             "Top P",
             min_value=0.1,
@@ -359,17 +397,34 @@ def main():
             help="Controls diversity of output"
         )
         Config.top_p = top_p
-        
-        max_tokens = st.number_input(
-            "Max Tokens",
+
+        # Max tokens with validation
+        max_output_tokens = st.number_input(
+            "Max Output Tokens",
             min_value=1000,
-            max_value=32000,
-            value=Config.max_tokens,
+            max_value=min(128000, max_context - 1000),  # Cap at context limit
+            value=min(Config.max_tokens, max_context - 1000),
             step=1000,
-            help="Maximum tokens for response"
+            help=f"Maximum tokens for response (model max: {max_context:,})"
         )
-        Config.max_tokens = max_tokens
-        
+        Config.max_tokens = max_output_tokens
+
+        # Token validation warning
+        if 'estimated_input_tokens' in st.session_state and st.session_state.estimated_input_tokens > 0:
+            is_valid, msg, recommended = Config.validate_token_limit(
+                st.session_state.estimated_input_tokens,
+                max_output_tokens,
+                model,
+                provider
+            )
+            if not is_valid:
+                st.error(f"⚠️ {msg}")
+                if st.button("Apply Recommended", key="apply_recommended"):
+                    Config.max_tokens = recommended
+                    st.rerun()
+            else:
+                st.success(f"✓ {msg}")
+
         threshold = st.slider(
             "Similarity Threshold",
             min_value=0,
@@ -379,7 +434,7 @@ def main():
             help="Minimum similarity score for valid mapping"
         )
         Config.threshold = threshold
-        
+
         st.divider()
         
         # Batch Settings
@@ -452,18 +507,30 @@ def main():
                     st.info(f"Sheets found: {', '.join(excel_data.sheet_names)}")
                     
                     # Show preview of data
+                    # Initialize for token estimation
+                    total_chars = 0
+
                     if 'First Group' in excel_data.sheet_names:
                         df_first = pd.read_excel(excel_data, sheet_name='First Group', header=None)
                         st.write("**First Group Preview:**")
                         st.dataframe(df_first.head().astype(str), width='stretch')
                         st.caption(f"Total rows: {len(df_first)}")
+                        # Estimate chars from data
+                        total_chars += df_first.astype(str).apply(lambda x: x.str.len().sum()).sum()
 
                     if 'Second Group' in excel_data.sheet_names:
                         df_second = pd.read_excel(excel_data, sheet_name='Second Group', header=None)
                         st.write("**Second Group Preview:**")
                         st.dataframe(df_second.head().astype(str), width='stretch')
                         st.caption(f"Total rows: {len(df_second)}")
-                    
+                        # Estimate chars from data
+                        total_chars += df_second.astype(str).apply(lambda x: x.str.len().sum()).sum()
+
+                    # Estimate tokens (roughly 4 chars per token, plus overhead for JSON/prompt)
+                    estimated_tokens = int(total_chars / 3.5) + 2000  # Add overhead for prompt/formatting
+                    st.session_state.estimated_input_tokens = estimated_tokens
+                    st.info(f"Estimated input tokens: ~{estimated_tokens:,} (includes prompt overhead)")
+
                     excel_data.close()  # Close the ExcelFile object
                         
                 except Exception as e:
@@ -540,14 +607,18 @@ def main():
         # Process button
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
+            # Check if appropriate API key is set based on provider
+            has_api_key = (Config.provider == "OpenAI" and Config.api_key) or \
+                          (Config.provider == "OpenRouter" and Config.openrouter_api_key)
+
             if st.button(
                 "🚀 Start Mapping Process",
                 type="primary",
                 width='stretch',
-                disabled=not (uploaded_file and st.session_state.selected_prompt_type and Config.api_key)
+                disabled=not (uploaded_file and st.session_state.selected_prompt_type and has_api_key)
             ):
-                if not Config.api_key:
-                    st.error("❌ Please enter your OpenAI API key in the sidebar")
+                if not has_api_key:
+                    st.error(f"❌ Please enter your {Config.provider} API key in the sidebar")
                 elif not uploaded_file:
                     st.error("❌ Please upload an Excel file")
                 elif not st.session_state.selected_prompt_type:
@@ -589,6 +660,7 @@ def main():
                 st.markdown(f"""
                 | Setting | Value |
                 |---------|-------|
+                | **Provider** | `{Config.provider}` |
                 | **Model** | `{Config.model}` |
                 | **Temperature** | `{Config.temperature}` |
                 | **Max Tokens** | `{Config.max_tokens:,}` |
@@ -942,8 +1014,8 @@ def main():
     st.markdown(
         f"""
         <div style='text-align: center; color: gray;'>
-            Laboratory Mapping Service v2.0 | Selected Mode: {st.session_state.selected_prompt_type or 'None'} | 
-            Model: {Config.model} | Temperature: {Config.temperature} | Threshold: {Config.threshold}
+            Medical Mapping Service v2.0 | Mode: {st.session_state.selected_prompt_type or 'None'} |
+            Provider: {Config.provider} | Model: {Config.model} | Threshold: {Config.threshold}%
         </div>
         """,
         unsafe_allow_html=True
