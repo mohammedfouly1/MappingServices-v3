@@ -22,7 +22,8 @@
       "Bash(ping:*)",
       "Bash(curl:*)",
       "Bash(netstat:*)",
-      "Bash(tasklist:*)"
+      "Bash(tasklist:*)",
+      "Bash(git push:*)"
     ]
   }
 }
