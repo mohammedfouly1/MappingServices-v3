@@ -117,7 +117,7 @@ st.markdown("""
         font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         font-size: 13px;
         color: #00ff00;
-        max-height: 350px;
+        max-height: 600px;
         overflow-y: auto;
         line-height: 1.5;
     }
@@ -204,6 +204,113 @@ st.markdown("""
         background: #f8d7da;
         color: #721c24;
     }
+    /* Progress Stats Cards */
+    .progress-stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+    }
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 20px;
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .stat-card.success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    .stat-card.warning {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .stat-card.info {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .stat-card-value {
+        font-size: 36px;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+    .stat-card-label {
+        font-size: 14px;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .stat-card-detail {
+        font-size: 12px;
+        opacity: 0.8;
+        margin-top: 8px;
+    }
+    /* Deduplication Summary Card */
+    .summary-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #667eea;
+    }
+    .summary-card h4 {
+        margin: 0 0 15px 0;
+        color: #667eea;
+        font-size: 18px;
+    }
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+    }
+    .summary-item {
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    .summary-item-label {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 4px;
+    }
+    .summary-item-value {
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+    }
+    /* Tab Styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 24px;
+        background-color: #f8f9fa;
+        padding: 10px 20px;
+        border-radius: 10px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        padding-left: 20px;
+        padding-right: 20px;
+        background-color: white;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #667eea;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+    .stTabs [data-baseweb="tab"]:hover {
+        background-color: #f0f2ff;
+        border-color: #667eea;
+        transform: translateY(-2px);
+    }
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white !important;
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -231,9 +338,9 @@ class StreamlitConsoleCapture:
             log_class = "log-info"
             if "error" in clean_text.lower() or "failed" in clean_text.lower():
                 log_class = "log-error"
-            elif "success" in clean_text.lower() or "completed" in clean_text.lower() or "✓" in clean_text:
+            elif "success" in clean_text.lower() or "completed" in clean_text.lower() or "[+]" in clean_text:
                 log_class = "log-success"
-            elif "warning" in clean_text.lower() or "⚠" in clean_text:
+            elif "warning" in clean_text.lower() or "[!]" in clean_text:
                 log_class = "log-warning"
 
             formatted_line = f'<span class="log-time">[{timestamp}]</span> <span class="{log_class}">{clean_text}</span>'
@@ -245,7 +352,7 @@ class StreamlitConsoleCapture:
 
     def _build_terminal_html(self):
         """Build styled terminal HTML output"""
-        lines = self.output[-30:]  # Last 30 lines
+        lines = self.output[-100:]  # Last 100 lines
         content = "<br>".join(lines)
 
         return f'''
@@ -254,7 +361,7 @@ class StreamlitConsoleCapture:
                 <span class="terminal-dot red"></span>
                 <span class="terminal-dot yellow"></span>
                 <span class="terminal-dot green"></span>
-                <span class="terminal-title">Processing Output - Live Console</span>
+                <span class="terminal-title">Processing Output - Live Console (Last 100 lines)</span>
             </div>
             <div class="terminal-body">
                 {content}
@@ -273,32 +380,120 @@ class StreamlitConsoleCapture:
 def load_prompt_from_file(prompt_type):
     """
     Load prompt text from the Prompts class.
-    
+
     UPDATED: Now uses the unified prompts.py instead of separate .txt files.
     This function maintains the same interface for backward compatibility.
-    
+
     Args:
         prompt_type: One of "Lab", "Radiology", or "Service"
-    
+
     Returns:
         The prompt text string, or None if error
     """
     try:
         # Get prompt from the unified Prompts class
         prompt_text = Prompts.get(prompt_type)
-        
+
         if not prompt_text:
             st.warning(f"⚠️ Prompt for '{prompt_type}' is empty!")
             return None
-            
+
         return prompt_text
-        
+
     except ValueError as e:
         st.error(f"❌ Error: {str(e)}")
         return None
     except Exception as e:
         st.error(f"❌ Unexpected error loading prompt: {str(e)}")
         return None
+
+
+def display_progress_stats(stats_dict):
+    """
+    Display progress statistics in beautiful cards.
+
+    Args:
+        stats_dict: Dictionary with batch progress information
+    """
+    if not stats_dict:
+        return ""
+
+    batches_completed = stats_dict.get('batches_completed', 0)
+    total_batches = stats_dict.get('total_batches', 0)
+    batches_remaining = total_batches - batches_completed
+    avg_time = stats_dict.get('avg_batch_time', 0)
+    estimated_remaining = batches_remaining * avg_time
+
+    # Convert estimated time to readable format
+    if estimated_remaining > 0:
+        mins = int(estimated_remaining // 60)
+        secs = int(estimated_remaining % 60)
+        time_str = f"{mins}m {secs}s" if mins > 0 else f"{secs}s"
+    else:
+        time_str = "Calculating..."
+
+    # Get mapping statistics
+    total_mappings = stats_dict.get('total_mappings', 0)
+    mapped_count = stats_dict.get('mapped_count', 0)
+    unmapped_count = stats_dict.get('unmapped_count', 0)
+    avg_score = stats_dict.get('avg_score', 0)
+
+    # Get token statistics
+    total_tokens = stats_dict.get('total_tokens', 0)
+
+    html = f'''
+    <div class="progress-stats-container">
+        <div class="stat-card">
+            <div class="stat-card-label">Batches Progress</div>
+            <div class="stat-card-value">{batches_completed}/{total_batches}</div>
+            <div class="stat-card-detail">{batches_remaining} remaining</div>
+        </div>
+        <div class="stat-card info">
+            <div class="stat-card-label">Est. Time Left</div>
+            <div class="stat-card-value">{time_str}</div>
+            <div class="stat-card-detail">Avg: {avg_time:.1f}s per batch</div>
+        </div>
+        <div class="stat-card success">
+            <div class="stat-card-label">Total Mappings</div>
+            <div class="stat-card-value">{total_mappings:,}</div>
+            <div class="stat-card-detail">Mapped: {mapped_count} | Unmapped: {unmapped_count}</div>
+        </div>
+        <div class="stat-card warning">
+            <div class="stat-card-label">Avg Score</div>
+            <div class="stat-card-value">{avg_score:.1f}%</div>
+            <div class="stat-card-detail">Tokens: {total_tokens:,}</div>
+        </div>
+    </div>
+    '''
+
+    # Add deduplication and mapping details if available
+    if 'dedup_stats' in stats_dict:
+        dedup = stats_dict['dedup_stats']
+        html += f'''
+        <div class="summary-card">
+            <h4>📊 Latest Batch Statistics</h4>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-item-label">Mappings Received</div>
+                    <div class="summary-item-value">{dedup.get('received', 0)}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-item-label">New Added</div>
+                    <div class="summary-item-value" style="color: #11998e;">{dedup.get('new', 0)}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-item-label">Updated (Better Score)</div>
+                    <div class="summary-item-value" style="color: #4facfe;">{dedup.get('updated', 0)}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-item-label">Duplicates Ignored</div>
+                    <div class="summary-item-value" style="color: #f5576c;">{dedup.get('ignored', 0)}</div>
+                </div>
+            </div>
+        </div>
+        '''
+
+    return html
 
 
 def main():
@@ -319,7 +514,19 @@ def main():
         st.session_state.uploaded_file_content = None
     if 'estimated_input_tokens' not in st.session_state:
         st.session_state.estimated_input_tokens = 0
-    
+    if 'batch_stats' not in st.session_state:
+        st.session_state.batch_stats = {
+            'batches_completed': 0,
+            'total_batches': 0,
+            'avg_batch_time': 0,
+            'total_mappings': 0,
+            'mapped_count': 0,
+            'unmapped_count': 0,
+            'avg_score': 0,
+            'total_tokens': 0,
+            'batch_times': []
+        }
+
     # Sidebar Configuration
     with st.sidebar:
         st.header("⚙️ Configuration")
@@ -428,7 +635,7 @@ def main():
                     Config.max_tokens = recommended
                     st.rerun()
             else:
-                st.success(f"✓ {msg}")
+                st.success(f"[OK] {msg}")
 
         threshold = st.slider(
             "Similarity Threshold",
@@ -461,10 +668,22 @@ def main():
             max_value=300,
             value=Config.wait_between_batches,
             step=30,
-            help="Delay between API calls"
+            help="Delay between API calls (deprecated with async processing)"
         )
         Config.wait_between_batches = wait_time
-        
+
+        max_concurrent_batches = st.number_input(
+            "Max Concurrent Batches",
+            min_value=1,
+            max_value=10,
+            value=Config.max_concurrent_batches,
+            step=1,
+            help="Maximum number of batches processed simultaneously (with rate limiting)"
+        )
+        Config.max_concurrent_batches = max_concurrent_batches
+
+        st.caption("💡 Async processing with automatic rate limiting (RPM/TPM)")
+
         st.divider()
         
         # Optimization Settings
@@ -709,6 +928,9 @@ def main():
             progress_bar = st.progress(0)
             status_placeholder = st.empty()
 
+            # Progress Statistics Cards
+            stats_placeholder = st.empty()
+
             # Terminal Console Output
             st.markdown("#### Live Console Output")
             console_output = st.empty()
@@ -773,6 +995,25 @@ def main():
                         update_stage(stage4_placeholder, 4, "Finalizing Results", "completed")
                         progress_bar.progress(100)
                         status_placeholder.markdown('<span class="status-badge success">Completed Successfully!</span>', unsafe_allow_html=True)
+
+                        # Update batch stats display
+                        stats = results.get("statistics", {})
+                        batch_meta = results.get("batch_metadata", {})
+
+                        if batch_meta:
+                            # Extract batch statistics
+                            display_stats = {
+                                'batches_completed': batch_meta.get('batches_processed', 0),
+                                'total_batches': batch_meta.get('total_batches', 0),
+                                'avg_batch_time': 0,  # Would need to track this
+                                'total_mappings': len(results.get("mappings", [])),
+                                'mapped_count': stats.get("mapped_count", 0),
+                                'unmapped_count': stats.get("unmapped_count", 0),
+                                'avg_score': stats.get("avg_score", 0),
+                                'total_tokens': stats.get("total_tokens", 0)
+                            }
+                            stats_html = display_progress_stats(display_stats)
+                            stats_placeholder.markdown(stats_html, unsafe_allow_html=True)
 
                         st.divider()
 

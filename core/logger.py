@@ -221,8 +221,15 @@ def log_api_call(logger_instance, provider: str, model: str, tokens: dict, laten
         >>> )
     """
     status = "SUCCESS" if success else "FAILED"
-    logger_instance.info(
-        f"API Call [{status}] | Provider: {provider} | Model: {model} | "
-        f"Tokens: {tokens.get('total', 0):,} (in: {tokens.get('input', 0):,}, out: {tokens.get('output', 0):,}) | "
-        f"Latency: {latency:.2f}s"
-    )
+    msg = (f"API Call [{status}] | Provider: {provider} | Model: {model} | "
+           f"Tokens: {tokens.get('total', 0):,} (in: {tokens.get('input', 0):,}, out: {tokens.get('output', 0):,}) | "
+           f"Latency: {latency:.2f}s")
+    logger_instance.info(msg)
+
+    # Also print to stdout for Streamlit console capture (in async threads, logger might not reach Streamlit)
+    try:
+        import builtins
+        color = Fore.GREEN if success else Fore.RED
+        builtins.print(f"{color}[+] {msg}{Style.RESET_ALL}")
+    except:
+        pass  # Ignore print failures in async context

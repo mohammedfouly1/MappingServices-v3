@@ -65,6 +65,7 @@ def SendInputParts(excel_path: str = None,
     print(f"{Fore.WHITE}  • Top P: {Config.top_p}")
     print(f"{Fore.WHITE}  • Max Tokens: {Config.max_tokens}")
     print(f"{Fore.WHITE}  • Max Batch Size: {Config.max_batch_size}")
+    print(f"{Fore.WHITE}  • Max Concurrent Batches: {Config.max_concurrent_batches}")
     print(f"{Fore.WHITE}  • Wait Between Batches: {Config.wait_between_batches}s")
     print(f"{Fore.WHITE}  • Threshold: {Config.threshold}")
     print(f"{Fore.CYAN}{'='*60}\n")
@@ -87,16 +88,16 @@ def SendInputParts(excel_path: str = None,
     try:
         # Check if file exists
         if not Path(excel_path).exists():
-            print(f"{Fore.RED}✗ Error: Excel file not found at {excel_path}")
+            print(f"{Fore.RED}[X] Error: Excel file not found at {excel_path}")
             return None
         
         # Load Excel file
         excel_data = pd.ExcelFile(excel_path)
-        print(f"{Fore.GREEN}✓ Excel file opened successfully")
+        print(f"{Fore.GREEN}[+] Excel file opened successfully")
         print(f"{Fore.WHITE}Available sheets: {excel_data.sheet_names}")
         
     except Exception as e:
-        print(f"{Fore.RED}✗ Error opening Excel file: {str(e)}")
+        print(f"{Fore.RED}[X] Error opening Excel file: {str(e)}")
         return None
     
     # ===== Step 2: Read First Group Sheet =====
@@ -104,13 +105,13 @@ def SendInputParts(excel_path: str = None,
     
     try:
         if 'First Group' not in excel_data.sheet_names:
-            print(f"{Fore.RED}✗ Error: 'First Group' sheet not found")
+            print(f"{Fore.RED}[X] Error: 'First Group' sheet not found")
             print(f"{Fore.WHITE}Available sheets: {excel_data.sheet_names}")
             return None
         
         # Read First Group sheet
         df_first = pd.read_excel(excel_data, sheet_name='First Group', header=None)
-        print(f"{Fore.GREEN}✓ First Group sheet loaded")
+        print(f"{Fore.GREEN}[+] First Group sheet loaded")
         print(f"{Fore.WHITE}Shape: {df_first.shape[0]} rows × {df_first.shape[1]} columns")
         
         # Process First Group data
@@ -130,13 +131,13 @@ def SendInputParts(excel_path: str = None,
             first_group_list.append(item)
             
             # Compact format for API
-            compact_item = create_compact_item(first_code, first_name, "first")
+            compact_item = create_compact_item(first_code, first_name)
             first_group_compact.append(compact_item)
             
             # Increment counter
             first_group_count += 1
         
-        print(f"{Fore.GREEN}✓ Processed {first_group_count} items from First Group")
+        print(f"{Fore.GREEN}[+] Processed {first_group_count} items from First Group")
         
         # Print sample of First Group data
         if verbose and first_group_list:
@@ -147,7 +148,7 @@ def SendInputParts(excel_path: str = None,
                 print(f"{Fore.WHITE}  ... and {len(first_group_list) - 3} more items")
     
     except Exception as e:
-        print(f"{Fore.RED}✗ Error reading First Group sheet: {str(e)}")
+        print(f"{Fore.RED}[X] Error reading First Group sheet: {str(e)}")
         return None
     
     # ===== Step 3: Read Second Group Sheet =====
@@ -155,13 +156,13 @@ def SendInputParts(excel_path: str = None,
     
     try:
         if 'Second Group' not in excel_data.sheet_names:
-            print(f"{Fore.RED}✗ Error: 'Second Group' sheet not found")
+            print(f"{Fore.RED}[X] Error: 'Second Group' sheet not found")
             print(f"{Fore.WHITE}Available sheets: {excel_data.sheet_names}")
             return None
         
         # Read Second Group sheet
         df_second = pd.read_excel(excel_data, sheet_name='Second Group', header=None)
-        print(f"{Fore.GREEN}✓ Second Group sheet loaded")
+        print(f"{Fore.GREEN}[+] Second Group sheet loaded")
         print(f"{Fore.WHITE}Shape: {df_second.shape[0]} rows × {df_second.shape[1]} columns")
         
         # Process Second Group data
@@ -181,13 +182,13 @@ def SendInputParts(excel_path: str = None,
             second_group_list.append(item)
             
             # Compact format for API
-            compact_item = create_compact_item(second_code, second_name, "second")
+            compact_item = create_compact_item(second_code, second_name)
             second_group_compact.append(compact_item)
             
             # Increment counter
             second_group_count += 1
         
-        print(f"{Fore.GREEN}✓ Processed {second_group_count} items from Second Group")
+        print(f"{Fore.GREEN}[+] Processed {second_group_count} items from Second Group")
         
         # Print sample of Second Group data
         if verbose and second_group_list:
@@ -198,7 +199,7 @@ def SendInputParts(excel_path: str = None,
                 print(f"{Fore.WHITE}  ... and {len(second_group_list) - 3} more items")
     
     except Exception as e:
-        print(f"{Fore.RED}✗ Error reading Second Group sheet: {str(e)}")
+        print(f"{Fore.RED}[X] Error reading Second Group sheet: {str(e)}")
         return None
     
     # ===== Step 4: Read Prompt Text File =====
@@ -207,13 +208,13 @@ def SendInputParts(excel_path: str = None,
     
     try:
         if not Path(prompt_path).exists():
-            print(f"{Fore.RED}✗ Error: Prompt file not found at {prompt_path}")
+            print(f"{Fore.RED}[X] Error: Prompt file not found at {prompt_path}")
             return None
         
         with open(prompt_path, 'r', encoding='utf-8-sig') as f:
             prompt_text = f.read().strip()
         
-        print(f"{Fore.GREEN}✓ Prompt file read successfully")
+        print(f"{Fore.GREEN}[+] Prompt file read successfully")
         print(f"{Fore.WHITE}Prompt length: {len(prompt_text)} characters")
         
         # Print prompt preview
@@ -227,25 +228,25 @@ def SendInputParts(excel_path: str = None,
                 print(f"{Fore.WHITE}{prompt_text}")
     
     except Exception as e:
-        print(f"{Fore.RED}✗ Error reading prompt file: {str(e)}")
+        print(f"{Fore.RED}[X] Error reading prompt file: {str(e)}")
         return None
     
     # ===== Step 5: Validate Data =====
     print(f"\n{Fore.YELLOW}[Step 5] Validating data...")
     
     if not first_group_list:
-        print(f"{Fore.RED}✗ Error: First Group list is empty")
+        print(f"{Fore.RED}[X] Error: First Group list is empty")
         return None
     
     if not second_group_list:
-        print(f"{Fore.RED}✗ Error: Second Group list is empty")
+        print(f"{Fore.RED}[X] Error: Second Group list is empty")
         return None
     
     if not prompt_text:
-        print(f"{Fore.RED}✗ Error: Prompt text is empty")
+        print(f"{Fore.RED}[X] Error: Prompt text is empty")
         return None
     
-    print(f"{Fore.GREEN}✓ All data validated successfully")
+    print(f"{Fore.GREEN}[+] All data validated successfully")
     
     # Print row counts
     print(f"\n{Fore.CYAN}Data Statistics:")
@@ -282,14 +283,14 @@ def SendInputParts(excel_path: str = None,
         )
         
         if result:
-            print(f"\n{Fore.GREEN}✓ Batch processing completed successfully")
+            print(f"\n{Fore.GREEN}[+] Batch processing completed successfully")
             return result
         else:
-            print(f"\n{Fore.RED}✗ Batch processing failed")
+            print(f"\n{Fore.RED}[X] Batch processing failed")
             return None
             
     except Exception as e:
-        print(f"\n{Fore.RED}✗ Error during batch processing: {str(e)}")
+        print(f"\n{Fore.RED}[X] Error during batch processing: {str(e)}")
         import traceback
         print(traceback.format_exc())
         return None
@@ -334,7 +335,7 @@ def SaveResults(results: Dict, output_path: str = None) -> bool:
         with open(json_output_path, 'w', encoding='utf-8') as f:
             json.dump(json_results, f, ensure_ascii=False, indent=2)
         
-        print(f"\n{Fore.GREEN}✓ JSON results saved to: {json_output_path}")
+        print(f"\n{Fore.GREEN}[+] JSON results saved to: {json_output_path}")
         
         # Also save DataFrames to Excel
         excel_output_path = f"mapping_results_{timestamp}.xlsx"
@@ -343,5 +344,5 @@ def SaveResults(results: Dict, output_path: str = None) -> bool:
         return True
         
     except Exception as e:
-        print(f"\n{Fore.RED}✗ Error saving results: {str(e)}")
+        print(f"\n{Fore.RED}[X] Error saving results: {str(e)}")
         return False

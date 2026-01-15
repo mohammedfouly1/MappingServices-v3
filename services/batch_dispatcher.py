@@ -277,6 +277,9 @@ async def process_batch_async(
         if batch_result:
             logger.info(f"[+] Batch {batch_index} of {total_batches} completed successfully")
             logger.info(f"  - Mappings in this batch: {len(api_result['mappings'])}")
+            # Also print to stdout for Streamlit console capture
+            safe_print(f"{Fore.GREEN}[+] Batch {batch_index} of {total_batches} completed successfully")
+            safe_print(f"{Fore.WHITE}  - Mappings in this batch: {len(api_result['mappings'])}")
             return batch_result
 
         return None

@@ -23,21 +23,35 @@ logger = get_logger(__name__)
 
 
 # Model limits - RPM (Requests Per Minute) and TPM (Tokens Per Minute)
+# OpenAI Tier 3 limits - ALL models have RPM = 5,000
 MODEL_LIMITS = {
-    # OpenAI Models
-    "gpt-4o": {"rpm": 10000, "tpm": 2000000},
-    "gpt-4o-mini": {"rpm": 10000, "tpm": 2000000},
+    # OpenAI Models - Tier 3
     "gpt-4-turbo": {"rpm": 5000, "tpm": 600000},
-    "gpt-4": {"rpm": 5000, "tpm": 300000},
-    "gpt-3.5-turbo": {"rpm": 3500, "tpm": 90000},
-    "gpt-3.5-turbo-16k": {"rpm": 3500, "tpm": 180000},
+    "gpt-4o-mini": {"rpm": 5000, "tpm": 4000000},
+    "gpt-4o": {"rpm": 5000, "tpm": 800000},
+    "chatgpt-4o-latest": {"rpm": 5000, "tpm": 800000},
+    "gpt-4": {"rpm": 5000, "tpm": 5000000},
+    "gpt-5": {"rpm": 5000, "tpm": 2000000},
+    "gpt-5.2": {"rpm": 5000, "tpm": 2000000},
+    "gpt-5-mini": {"rpm": 5000, "tpm": 4000000},
+    "gpt-5.2-pro": {"rpm": 5000, "tpm": 800000},
 
     # OpenRouter Models (approximate limits)
     "anthropic/claude-3-opus": {"rpm": 1000, "tpm": 400000},
     "anthropic/claude-3-sonnet": {"rpm": 1000, "tpm": 400000},
     "anthropic/claude-3-haiku": {"rpm": 1000, "tpm": 400000},
+    "anthropic/claude-3.5-sonnet": {"rpm": 1000, "tpm": 400000},
+    "anthropic/claude-3.5-haiku": {"rpm": 1000, "tpm": 400000},
     "google/gemini-pro": {"rpm": 1000, "tpm": 500000},
+    "google/gemini-pro-1.5": {"rpm": 1000, "tpm": 500000},
+    "google/gemini-flash-1.5": {"rpm": 1000, "tpm": 500000},
+    "google/gemini-2.0-flash": {"rpm": 1000, "tpm": 500000},
+    "google/gemini-2.5-pro": {"rpm": 1000, "tpm": 500000},
     "meta-llama/llama-3-70b": {"rpm": 1000, "tpm": 300000},
+    "meta-llama/llama-3.3-70b-instruct": {"rpm": 1000, "tpm": 300000},
+    "mistralai/mistral-large": {"rpm": 1000, "tpm": 300000},
+    "deepseek/deepseek-chat": {"rpm": 1000, "tpm": 300000},
+    "deepseek/deepseek-v3": {"rpm": 1000, "tpm": 300000},
 
     # Default limits (conservative)
     "default": {"rpm": 500, "tpm": 100000}

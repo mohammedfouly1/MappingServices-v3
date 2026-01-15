@@ -9,80 +9,81 @@ class Config:
     # Provider options
     PROVIDERS = ["OpenAI", "OpenRouter"]
 
-    # OpenAI Models with their context window (max tokens)
+    # OpenAI Models with Tier 3 limits (max context, RPM, TPM, endpoints)
+    # ALL models below have RPM = 5,000 for Tier 3
     OPENAI_MODELS = {
-        # GPT-4o series
-        "gpt-4o": {"max_context": 128000, "description": "GPT-4o - Most capable multimodal model"},
-        "gpt-4o-mini": {"max_context": 128000, "description": "GPT-4o Mini - Fast and affordable"},
-        "gpt-4o-2024-11-20": {"max_context": 128000, "description": "GPT-4o November 2024"},
-        "gpt-4o-2024-08-06": {"max_context": 128000, "description": "GPT-4o August 2024"},
-        "gpt-4o-2024-05-13": {"max_context": 128000, "description": "GPT-4o May 2024"},
         # GPT-4 Turbo
-        "gpt-4-turbo": {"max_context": 128000, "description": "GPT-4 Turbo with Vision"},
-        "gpt-4-turbo-2024-04-09": {"max_context": 128000, "description": "GPT-4 Turbo April 2024"},
-        "gpt-4-turbo-preview": {"max_context": 128000, "description": "GPT-4 Turbo Preview"},
-        # GPT-4
-        "gpt-4": {"max_context": 8192, "description": "GPT-4 Base model"},
-        "gpt-4-0613": {"max_context": 8192, "description": "GPT-4 June 2023"},
-        "gpt-4-32k": {"max_context": 32768, "description": "GPT-4 32K context"},
-        "gpt-4-32k-0613": {"max_context": 32768, "description": "GPT-4 32K June 2023"},
-        # GPT-4.1 series
-        "gpt-4.1": {"max_context": 1000000, "description": "GPT-4.1 - 1M context"},
-        "gpt-4.1-mini": {"max_context": 1000000, "description": "GPT-4.1 Mini - Fast 1M context"},
-        "gpt-4.1-nano": {"max_context": 1000000, "description": "GPT-4.1 Nano - Lightweight"},
-        # GPT-4.5 series
-        "gpt-4.5-preview": {"max_context": 128000, "description": "GPT-4.5 Preview"},
-        "gpt-4.5": {"max_context": 128000, "description": "GPT-4.5"},
+        "gpt-4-turbo": {
+            "max_context": 128000,
+            "description": "GPT-4 Turbo with Vision",
+            "rpm_limit": 5000,
+            "tpm_limit": 600000,
+            "endpoints": ["/v1/responses", "/v1/chat/completions"]
+        },
+        # GPT-4o series
+        "gpt-4o-mini": {
+            "max_context": 128000,
+            "description": "GPT-4o Mini - Fast and affordable",
+            "rpm_limit": 5000,
+            "tpm_limit": 4000000,
+            "endpoints": ["/v1/responses", "/v1/chat/completions"]
+        },
+        "gpt-4o": {
+            "max_context": 128000,
+            "description": "GPT-4o - Most capable multimodal model",
+            "rpm_limit": 5000,
+            "tpm_limit": 800000,
+            "endpoints": ["/v1/responses", "/v1/chat/completions"]
+        },
+        "chatgpt-4o-latest": {
+            "max_context": 128000,
+            "description": "ChatGPT-4o - Latest ChatGPT model",
+            "rpm_limit": 5000,
+            "tpm_limit": 800000,
+            "endpoints": ["/v1/responses", "/v1/chat/completions"]
+        },
+        # GPT-4 Base
+        "gpt-4": {
+            "max_context": 8192,
+            "description": "GPT-4 Base model",
+            "rpm_limit": 5000,
+            "tpm_limit": 5000000,
+            "endpoints": ["/v1/responses", "/v1/chat/completions"]
+        },
         # GPT-5 series
-        "gpt-5": {"max_context": 256000, "description": "GPT-5 - Next generation"},
-        "gpt-5-mini": {"max_context": 256000, "description": "GPT-5 Mini - Fast"},
-        "gpt-5-turbo": {"max_context": 256000, "description": "GPT-5 Turbo"},
-        # GPT-5.1 series
-        "gpt-5.1": {"max_context": 256000, "description": "GPT-5.1 - Enhanced"},
-        "gpt-5.1-mini": {"max_context": 256000, "description": "GPT-5.1 Mini"},
-        "gpt-5.1-turbo": {"max_context": 256000, "description": "GPT-5.1 Turbo"},
-        # GPT-5.2 series
-        "gpt-5.2": {"max_context": 512000, "description": "GPT-5.2 - Latest"},
-        "gpt-5.2-mini": {"max_context": 512000, "description": "GPT-5.2 Mini"},
-        "gpt-5.2-turbo": {"max_context": 512000, "description": "GPT-5.2 Turbo"},
-        # GPT-3.5 series
-        "gpt-3.5-turbo": {"max_context": 16385, "description": "GPT-3.5 Turbo"},
-        "gpt-3.5-turbo-0125": {"max_context": 16385, "description": "GPT-3.5 Turbo January 2025"},
-        "gpt-3.5-turbo-1106": {"max_context": 16385, "description": "GPT-3.5 Turbo November 2023"},
-        "gpt-3.5-turbo-16k": {"max_context": 16385, "description": "GPT-3.5 Turbo 16K"},
-        # o1 series (reasoning models)
-        "o1": {"max_context": 200000, "description": "o1 - Advanced reasoning model"},
-        "o1-preview": {"max_context": 128000, "description": "o1 Preview"},
-        "o1-mini": {"max_context": 128000, "description": "o1 Mini - Fast reasoning"},
-        # o3 series (if available)
-        "o3": {"max_context": 200000, "description": "o3 - Latest reasoning (if available)"},
-        "o3-mini": {"max_context": 200000, "description": "o3 Mini (if available)"},
+        "gpt-5": {
+            "max_context": 400000,
+            "description": "GPT-5 - Next generation",
+            "rpm_limit": 5000,
+            "tpm_limit": 2000000,
+            "endpoints": ["/v1/responses", "/v1/chat/completions"]
+        },
+        "gpt-5.2": {
+            "max_context": 400000,
+            "description": "GPT-5.2 - Advanced",
+            "rpm_limit": 5000,
+            "tpm_limit": 2000000,
+            "endpoints": ["/v1/responses", "/v1/chat/completions"]
+        },
+        "gpt-5-mini": {
+            "max_context": 400000,
+            "description": "GPT-5 Mini - Fast",
+            "rpm_limit": 5000,
+            "tpm_limit": 4000000,
+            "endpoints": ["/v1/responses", "/v1/chat/completions"]
+        },
+        "gpt-5.2-pro": {
+            "max_context": 400000,
+            "description": "GPT-5.2 Pro - Responses API only",
+            "rpm_limit": 5000,
+            "tpm_limit": 800000,
+            "endpoints": ["/v1/responses"]
+        },
     }
 
     # OpenRouter Models with their context window
+    # NOTE: OpenAI models are available directly through OpenAI provider above
     OPENROUTER_MODELS = {
-        # OpenAI via OpenRouter
-        "openai/gpt-4o": {"max_context": 128000, "description": "GPT-4o via OpenRouter"},
-        "openai/gpt-4o-mini": {"max_context": 128000, "description": "GPT-4o Mini via OpenRouter"},
-        "openai/gpt-4-turbo": {"max_context": 128000, "description": "GPT-4 Turbo via OpenRouter"},
-        "openai/gpt-4": {"max_context": 8192, "description": "GPT-4 via OpenRouter"},
-        "openai/gpt-4.1": {"max_context": 1000000, "description": "GPT-4.1 via OpenRouter"},
-        "openai/gpt-4.1-mini": {"max_context": 1000000, "description": "GPT-4.1 Mini via OpenRouter"},
-        "openai/gpt-4.1-nano": {"max_context": 1000000, "description": "GPT-4.1 Nano via OpenRouter"},
-        "openai/gpt-4.5": {"max_context": 128000, "description": "GPT-4.5 via OpenRouter"},
-        "openai/gpt-5": {"max_context": 256000, "description": "GPT-5 via OpenRouter"},
-        "openai/gpt-5-mini": {"max_context": 256000, "description": "GPT-5 Mini via OpenRouter"},
-        "openai/gpt-5-turbo": {"max_context": 256000, "description": "GPT-5 Turbo via OpenRouter"},
-        "openai/gpt-5.1": {"max_context": 256000, "description": "GPT-5.1 via OpenRouter"},
-        "openai/gpt-5.1-mini": {"max_context": 256000, "description": "GPT-5.1 Mini via OpenRouter"},
-        "openai/gpt-5.2": {"max_context": 512000, "description": "GPT-5.2 via OpenRouter"},
-        "openai/gpt-5.2-mini": {"max_context": 512000, "description": "GPT-5.2 Mini via OpenRouter"},
-        "openai/gpt-3.5-turbo": {"max_context": 16385, "description": "GPT-3.5 Turbo via OpenRouter"},
-        "openai/o1": {"max_context": 200000, "description": "o1 via OpenRouter"},
-        "openai/o1-mini": {"max_context": 128000, "description": "o1 Mini via OpenRouter"},
-        "openai/o1-pro": {"max_context": 200000, "description": "o1 Pro via OpenRouter"},
-        "openai/o3": {"max_context": 200000, "description": "o3 via OpenRouter"},
-        "openai/o3-mini": {"max_context": 200000, "description": "o3 Mini via OpenRouter"},
         # Anthropic Claude
         "anthropic/claude-3.5-sonnet": {"max_context": 200000, "description": "Claude 3.5 Sonnet"},
         "anthropic/claude-3.5-sonnet-20241022": {"max_context": 200000, "description": "Claude 3.5 Sonnet October 2024"},
@@ -205,6 +206,23 @@ class Config:
     # Batch settings
     max_batch_size = 200
     wait_between_batches = 120
+    max_concurrent_batches = 3  # Number of batches processed simultaneously with rate limiting
+
+    @classmethod
+    def log_configuration(cls):
+        """Log current configuration settings"""
+        from core.logger import get_logger
+        logger = get_logger(__name__)
+        logger.info(f"Configuration:")
+        logger.info(f"  - Provider: {cls.provider}")
+        logger.info(f"  - Model: {cls.model}")
+        logger.info(f"  - Temperature: {cls.temperature}")
+        logger.info(f"  - Top P: {cls.top_p}")
+        logger.info(f"  - Max Tokens: {cls.max_tokens}")
+        logger.info(f"  - Threshold: {cls.threshold}")
+        logger.info(f"  - Max Batch Size: {cls.max_batch_size}")
+        logger.info(f"  - Max Concurrent Batches: {cls.max_concurrent_batches}")
+        logger.info(f"  - Use Compact JSON: {cls.use_compact_json}")
 
     @classmethod
     def get_models_for_provider(cls, provider: str) -> dict:

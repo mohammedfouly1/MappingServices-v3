@@ -242,9 +242,11 @@ Return JSON object with 'mappings' array containing all mappings. Use threshold:
         
         if mapping_results is None:
             return None
-        
+
         logger.info(f"[+] Successfully parsed {len(mapping_results)} mappings")
-        
+        # Also print to stdout for Streamlit console capture
+        safe_print(f"{Fore.GREEN}[+] Successfully parsed {len(mapping_results)} mappings")
+
         # If using compact format, expand results
         if use_compact:
             expanded_results = []
@@ -304,6 +306,7 @@ def parse_optimized_response(response_text: str, is_compact: bool, verbose: bool
         if isinstance(parsed_json, dict) and "mappings" in parsed_json:
             mapping_results = parsed_json["mappings"]
             logger.info(f"[+] Found mappings in JSON object")
+            safe_print(f"{Fore.GREEN}[+] Found mappings in JSON object")
         elif isinstance(parsed_json, list):
             mapping_results = parsed_json
             logger.info(f"[+] Response is a direct JSON array")

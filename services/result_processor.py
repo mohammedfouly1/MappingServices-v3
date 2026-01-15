@@ -90,7 +90,7 @@ def ProcessMappingResults(mappings: List[Dict],
         reset_dataframes()
     
     if not mappings:
-        print(f"{Fore.RED}✗ No mappings to process")
+        print(f"{Fore.RED}[X] No mappings to process")
         return None
     
     # Extract token usage from response
@@ -163,7 +163,7 @@ def ProcessMappingResults(mappings: List[Dict],
             new_mappings.append(mapping)
             
             if verbose and len(new_mappings) <= 3:
-                print(f"{Fore.GREEN}✓ New: {first_code} → {second_code} (Score: {score})")
+                print(f"{Fore.GREEN}[+] New: {first_code} → {second_code} (Score: {score})")
     
     # Calculate statistics
     total_mappings = len(mappings)
@@ -343,10 +343,10 @@ def save_dataframes_to_excel(filepath: str):
             summary_df = pd.DataFrame(summary_data)
             summary_df.to_excel(writer, sheet_name='Summary', index=False)
         
-        print(f"{Fore.GREEN}✓ DataFrames saved to: {filepath}")
+        print(f"{Fore.GREEN}[+] DataFrames saved to: {filepath}")
         print(f"{Fore.WHITE}  • Sheets: API_Calls, Mappings, Parameters, Summary")
         return True
         
     except Exception as e:
-        print(f"{Fore.RED}✗ Error saving to Excel: {str(e)}")
+        print(f"{Fore.RED}[X] Error saving to Excel: {str(e)}")
         return False
