@@ -17,7 +17,7 @@ from typing import Dict, List, Tuple
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from threading import RLock
-from logger import get_logger
+from core.logger import get_logger
 
 logger = get_logger(__name__)
 

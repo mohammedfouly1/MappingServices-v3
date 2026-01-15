@@ -8,11 +8,11 @@ from concurrent.futures import ThreadPoolExecutor
 from colorama import Fore
 import re
 
-from config import Config
-from api_mapping import PerformMapping
-from result_processor import ProcessMappingResults
-from rate_limiter import get_rate_limiter_for_model, estimate_tokens
-from logger import get_logger
+from core.config import Config
+from api.client import PerformMapping
+from services.result_processor import ProcessMappingResults
+from api.rate_limiter import get_rate_limiter_for_model, estimate_tokens
+from core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -393,7 +393,7 @@ def Dispatcher(first_group_list: List[Dict],
     safe_print(f"{Fore.MAGENTA}{'='*60}\n")
 
     # Pre-flight check: Validate API key before processing
-    from api_mapping import get_api_client
+    from api.client import get_api_client
     test_client, test_api_key, test_provider = get_api_client()
     if not test_api_key:
         logger.error(f"[X] CRITICAL: {test_provider} API key not found!")

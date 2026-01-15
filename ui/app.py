@@ -14,10 +14,10 @@ import tempfile
 import os
 
 # Import our modules
-from config import Config
-from input_handler import SendInputParts
-from result_processor import get_dataframes, reset_dataframes, save_dataframes_to_excel
-from prompts import Prompts  # NEW: Import the unified Prompts class
+from core.config import Config
+from services.input_handler import SendInputParts
+from services.result_processor import get_dataframes, reset_dataframes, save_dataframes_to_excel
+from core.prompts import Prompts  # NEW: Import the unified Prompts class
 
 # Set page config
 st.set_page_config(

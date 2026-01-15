@@ -7,10 +7,10 @@ from colorama import Fore
 import traceback
 import sys
 
-from config import Config
-from optimization_utils import create_compact_item, expand_compact_result
-from logger import get_logger, log_api_call, log_exception
-from api_utils import retry_with_backoff
+from core.config import Config
+from services.optimization_utils import create_compact_item, expand_compact_result
+from core.logger import get_logger, log_api_call, log_exception
+from api.utils import retry_with_backoff
 
 logger = get_logger(__name__)
 

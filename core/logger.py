@@ -9,7 +9,7 @@ Features:
 - Easy integration across modules
 
 Usage:
-    from logger import get_logger, log_exception
+    from core.logger import get_logger, log_exception
 
     logger = get_logger(__name__)
     logger.info("Processing started")
@@ -96,7 +96,7 @@ def setup_logger(
         Configured logger instance
 
     Example:
-        >>> from logger import setup_logger
+        >>> from core.logger import setup_logger
         >>> logger = setup_logger()
         >>> logger.info("Processing started")
         >>> logger.error("Failed to connect", exc_info=True)
@@ -157,7 +157,7 @@ def get_logger(name: str = None) -> logging.Logger:
         Logger instance
 
     Example:
-        >>> from logger import get_logger
+        >>> from core.logger import get_logger
         >>> logger = get_logger(__name__)
         >>> logger.info("Started processing")
     """

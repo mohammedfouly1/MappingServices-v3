@@ -1,0 +1,48 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/*.log
+
+# Streamlit
+streamlit.pid
+.streamlit/
+
+# Environment
+.env
+.venv
+env/
+venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Documentation (generated reports)
+*_REPORT.md
+*_UPDATE.md
+*_FIX.md
+*_APPLIED.md
+*_SUMMARY.md
+*_ACTIVE.md
+*_ENHANCEMENTS.md
+*_COMPLETE*.md
+
+# Keep essential docs
+!CLAUDE.md
+!README.md

@@ -1,8 +1,8 @@
 # main.py
 from colorama import init, Fore
-from config import Config
-from input_handler import SendInputParts, SaveResults
-from result_processor import display_dataframe_summary, reset_dataframes
+from core.config import Config
+from services.input_handler import SendInputParts, SaveResults
+from services.result_processor import display_dataframe_summary, reset_dataframes
 
 # Initialize colorama for colored output
 init(autoreset=True)

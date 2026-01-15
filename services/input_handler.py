@@ -5,9 +5,9 @@ from typing import Optional, List, Dict
 from pathlib import Path
 from colorama import Fore
 
-from config import Config
-from optimization_utils import create_compact_item
-from batch_dispatcher import Dispatcher
+from core.config import Config
+from services.optimization_utils import create_compact_item
+from services.batch_dispatcher import Dispatcher
 
 
 def SendInputParts(excel_path: str = None, 
@@ -307,7 +307,7 @@ def SaveResults(results: Dict, output_path: str = None) -> bool:
         True if saved successfully, False otherwise
     """
     import time
-    from result_processor import save_dataframes_to_excel
+    from services.result_processor import save_dataframes_to_excel
     
     timestamp = time.strftime("%Y%m%d_%H%M%S")
     

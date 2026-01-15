@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(init)",
+      "Bash(python test_logger.py:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(python:*)",
+      "Bash(grep:*)",
+      "Bash(taskkill:*)",
+      "Bash(du -h:*)",
+      "Bash(powershell -Command \"Get-Item mapping_service_*.log | Select-Object Name, @{Name=''Size\\(MB\\)'';Expression={[math]::Round\\($_Length/1MB,2\\)}}, LastWriteTime\")",
+      "Bash(git restore:*)",
+      "Bash(find:*)",
+      "Bash(tree:*)",
+      "Bash(wc:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}

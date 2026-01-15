@@ -9,7 +9,7 @@ import time
 from typing import Callable, TypeVar, Tuple
 from functools import wraps
 from openai import RateLimitError, APIConnectionError, APITimeoutError, AuthenticationError, BadRequestError
-from logger import get_logger
+from core.logger import get_logger
 
 logger = get_logger(__name__)
 

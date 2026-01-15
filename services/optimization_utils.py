@@ -1,7 +1,7 @@
 # optimization_utils.py
 from typing import Dict
-from config import Config
-from logger import get_logger
+from core.config import Config
+from core.logger import get_logger
 
 logger = get_logger(__name__)
 

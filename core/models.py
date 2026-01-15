@@ -63,7 +63,7 @@ class MappingItem:
     @property
     def is_above_threshold(self) -> bool:
         """Check if similarity score is above threshold (imported at runtime)"""
-        from config import Config
+        from core.config import Config
         return self.similarity_score >= Config.threshold
 
     def to_dict(self) -> Dict[str, Any]:

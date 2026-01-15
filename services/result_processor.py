@@ -5,7 +5,7 @@ from datetime import datetime
 from colorama import Fore
 import json
 
-from config import Config
+from core.config import Config
 
 # Global DataFrames
 df_api_call = pd.DataFrame(columns=[
